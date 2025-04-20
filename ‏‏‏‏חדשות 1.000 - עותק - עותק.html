@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>חדשות עכשיו - העדכונים החמים</title>
+  <style>
+    :root {
+      --primary-color: #d32f2f;
+      --background-dark: #121212;
+      --card-background: #2a2a2a;
+      --header-background: #1f1f1f;
+      --text-color: #ffffff;
+      --link-color: #90caf9;
+      --secondary-color: #ff6659;
+      --divider-color: #424242;
+      --success-color: #4caf50;
+      --warning-color: #ff9800;
+      --card-hover-color: rgba(255, 255, 255, 0.08);
+      --ticker-speed: 40s;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      direction: rtl;
+      background-color: var(--background-dark);
+      color: var(--text-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      transition: background-color 0.3s;
+    }
+    
+    header {
+      background-color: var(--header-background);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .site-title {
+      font-size: 2.2em;
+      font-weight: bold;
+      margin: 0;
+      color: var(--text-color);
+      position: relative;
+      display: inline-block;
+    }
+    
+    .site-title::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 25%;
+      width: 50%;
+      height: 3px;
+      background-color: var(--primary-color);
+      border-radius: 3px;
+    }
+    
+    .ticker-container {
+      background: var(--primary-color);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      height: 40px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .ticker-label {
+      background-color: var(--secondary-color);
+      padding: 0 15px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      z-index: 10;
+      box-shadow: 3px 0 5px rgba(0,0,0,0.2);
+    }
+    
+    .ticker {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+    
+    .ticker-content {
+      position: absolute;
+      display: inline-block;
+      padding-right: 50px;
+      animation: scroll-right var(--ticker-speed) linear infinite;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    
+    @keyframes scroll-right {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+    
+    .ticker-item {
+      margin-left: 30px;
+      position: relative;
+      font-weight: 500;
+      display: inline-block;
+    }
+    
+    .ticker-item::after {
+      content: "⚡";
+      display: inline-block;
+      margin-right: 30px;
+    }
+    
+    .ticker-item:last-child::after {
+      display: none;
+    }
+    
+    .main-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+    
+    .feed-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+    
+    .feed {
+      background-color: var(--card-background);
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .feed:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+    
+    .feed-header {
+      background-color: var(--header-background);
+      padding: 15px;
+      border-bottom: 1px solid var(--divider-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .feed-title {
+      font-size: 1.3em;
+      margin: 0;
+      color: var(--text-color);
+      position: relative;
+      padding-right: 15px;
+    }
+    
+    .feed-title::before {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 5px;
+      height: 20px;
+      background-color: var(--primary-color);
+      border-radius: 3px;
+    }
+    
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--link-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-size: 0.9em;
+    }
+    
+    .refresh-icon {
+      margin-right: 5px;
+      transition: transform 0.3s;
+      display: inline-block;
+    }
+    
+    .spin {
+      animation: spin 1s linear;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .feed-content {
+      padding: 15px;
+    }
+    
+    .feed-list {
+      list-style: none;
+    }
+    
+    .feed-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--divider-color);
+      transition: background-color 0.2s;
+      position: relative;
+    }
+    
+    .feed-item:last-child {
+      border-bottom: none;
+    }
+    
+    .feed-item:hover {
+      background-color: var(--card-hover-color);
+    }
+    
+    .feed-item a {
+      color: var(--text-color);
+      text-decoration: none;
+      display: block;
+    }
+    
+    .feed-item-time {
+      color: var(--primary-color);
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    
+    .feed-item-title {
+      display: inline;
+    }
+    
+    .feed-item a:hover .feed-item-title {
+      color: var(--link-color);
+      text-decoration: underline;
+    }
+    
+    .status-bar {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.85em;
+      color: #888;
+      margin-top: 20px;
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: var(--card-background);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      z-index: 100;
+      transition: background-color 0.3s;
+    }
+    
+    .theme-toggle:hover {
+      background-color: var(--primary-color);
+    }
+    
+    .last-updated {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+    
+    .reload-btn {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+    
+    .reload-btn:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100px;
+    }
+    
+    .loading::after {
+      content: "";
+      width: 30px;
+      height: 30px;
+      border: 3px solid #ccc;
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: loading-spin 1s linear infinite;
+    }
+    
+    @keyframes loading-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Rotter floating panel */
+    .floating-panel {
+      position: fixed;
+      bottom: 80px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--card-background);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      z-index: 100;
+      transition: all 0.3s;
+      overflow: hidden;
+    }
+    
+    .floating-panel.expanded {
+      width: 350px;
+      height: 400px;
+      border-radius: 12px;
+      bottom: 100px;
+      left: 20px;
+    }
+    
+    .floating-panel-icon {
+      font-size: 24px;
+      transition: opacity 0.3s;
+    }
+    
+    .floating-panel.expanded .floating-panel-icon {
+      opacity: 0;
+      position: absolute;
+    }
+    
+    .floating-panel-content {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      padding: 15px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .floating-panel.expanded .floating-panel-content {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .floating-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--divider-color);
+    }
+    
+    .floating-panel-title {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    
+    .close-panel {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+    
+    .close-panel:hover {
+      color: var(--primary-color);
+    }
+    
+    .floating-panel-items {
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .panel-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--divider-color);
+    }
+    
+    .panel-item:last-child {
+      border-bottom: none;
+    }
+    
+    .panel-item a {
+      color: var(--text-color);
+      text-decoration: none;
+      display: block;
+    }
+    
+    .panel-item a:hover {
+      color: var(--link-color);
+    }
+    
+    .panel-item-time {
+      color: var(--primary-color);
+      font-size: 0.85em;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 3px;
+    }
+    
+    /* Settings Panel */
+    .settings-panel {
+      position: fixed;
+      bottom: 140px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--card-background);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+      z-index: 100;
+      transition: all 0.3s;
+      overflow: hidden;
+    }
+    
+    .settings-panel.expanded {
+      width: 300px;
+      height: 400px;
+      border-radius: 12px;
+    }
+    
+    .settings-icon {
+      font-size: 24px;
+      transition: opacity 0.3s;
+    }
+    
+    .settings-panel.expanded .settings-icon {
+      opacity: 0;
+      position: absolute;
+    }
+    
+    .settings-content {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      padding: 15px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .settings-panel.expanded .settings-content {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--divider-color);
+    }
+    
+    .settings-title {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    
+    .settings-form {
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .settings-group {
+      margin-bottom: 20px;
+    }
+    
+    .settings-group-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+    
+    .settings-option {
+      margin-bottom: 15px;
+    }
+    
+    .settings-label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .settings-select, .settings-range {
+      width: 100%;
+      padding: 8px;
+      background-color: var(--header-background);
+      color: var(--text-color);
+      border: 1px solid var(--divider-color);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .settings-range {
+      height: 10px;
+      padding: 0;
+    }
+    
+    .range-value {
+      text-align: center;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+    
+    .feed-toggle {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .feed-toggle-label {
+      flex: 1;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: var(--primary-color);
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+    
+    .settings-apply {
+      padding: 10px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+    
+    .settings-apply:hover {
+      background-color: var(--secondary-color);
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .notification.success {
+      background-color: var(--success-color);
+    }
+    
+    .notification.error {
+      background-color: var(--primary-color);
+    }
+    
+    .notification.warning {
+      background-color: var(--warning-color);
+    }
+    
+    .notification.show {
+      opacity: 1;
+    }
+    
+    /* עיצובים לגרסאות מובייל */
+    @media (max-width: 768px) {
+      .feed-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .site-title {
+        font-size: 1.8em;
+      }
+      
+      .ticker-label {
+        padding: 0 10px;
+      }
+      
+      .floating-panel.expanded,
+      .settings-panel.expanded {
+        width: 85%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      
+      .floating-panel,
+      .settings-panel,
+      .theme-toggle {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .theme-toggle {
+        bottom: 20px;
+        left: 20px;
+      }
+      
+      .floating-panel {
+        bottom: 70px;
+        left: 20px;
+      }
+      
+      .settings-panel {
+        bottom: 120px;
+        left: 20px;
+      }
+    }
+    
+    /* מצב בהיר */
+    body.light-mode {
+      --background-dark: #f5f5f5;
+      --card-background: #ffffff;
+      --header-background: #e0e0e0;
+      --text-color: #333333;
+      --link-color: #1976d2;
+      --divider-color: #e0e0e0;
+      --card-hover-color: rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="site-title">חדשות עכשיו</h1>
+  </header>
+  
+  <div class="ticker-container">
+    <div class="ticker-label">מבזקים</div>
+    <div class="ticker">
+      <div class="ticker-content" id="ticker-content">
+        <span class="ticker-item">טוען מבזקים...</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main-container">
+    <div class="feed-container" id="feed-container">
+      <div class="feed">
+        <div class="feed-header">
+          <h2 class="feed-title">הקול היהודי</h2>
+          <button class="refresh-btn" data-feed="kolhayehudi">
+            <span class="refresh-icon">↻</span> רענן
+          </button>
+        </div>
+        <div class="feed-content">
+          <ul class="feed-list" id="kolhayehudi-list">
+            <div class="loading"></div>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="feed">
+        <div class="feed-header">
+          <h2 class="feed-title">חמ"ל</h2>
+          <button class="refresh-btn" data-feed="hamal">
+            <span class="refresh-icon">↻</span> רענן
+          </button>
+        </div>
+        <div class="feed-content">
+          <ul class="feed-list" id="hamal-list">
+            <div class="loading"></div>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="feed">
+        <div class="feed-header">
+          <h2 class="feed-title">ערוץ 7</h2>
+          <button class="refresh-btn" data-feed="inn">
+            <span class="refresh-icon">↻</span> רענן
+          </button>
+        </div>
+        <div class="feed-content">
+          <ul class="feed-list" id="inn-list">
+            <div class="loading"></div>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="feed">
+        <div class="feed-header">
+          <h2 class="feed-title">0404 - חדשות</h2>
+          <button class="refresh-btn" data-feed="mivzak0404">
+            <span class="refresh-icon">↻</span> רענן
+          </button>
+        </div>
+        <div class="feed-content">
+          <ul class="feed-list" id="mivzak0404-list">
+            <div class="loading"></div>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="last-updated">
+      <div id="last-update-time">עודכן לאחרונה: טוען...</div>
+      <button class="reload-btn" id="reload-all">רענן את כל הפידים</button>
+    </div>
+  </div>
+  
+  <button class="theme-toggle" id="theme-toggle" title="החלף מצב תצוגה">
+    ☀️
+  </button>
+  
+  <div class="floating-panel" id="rotter-panel">
+    <div class="floating-panel-icon">📰</div>
+    <div class="floating-panel-content">
+      <div class="floating-panel-header">
+        <div class="floating-panel-title">עדכוני רוטר</div>
+        <button class="close-panel" id="close-rotter-panel">×</button>
+      </div>
+      <div class="floating-panel-items" id="rotter-items">
+        <div class="loading"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-icon">⚙️</div>
+    <div class="settings-content">
+      <div class="settings-header">
+        <div class="settings-title">הגדרות</div>
+        <button class="close-panel" id="close-settings-panel">×</button>
+      </div>
+      <div class="settings-form">
+        <div class="settings-group">
+          <div class="settings-group-title">פידים</div>
+          <div class="feed-toggle">
+            <span class="feed-toggle-label">הקול היהודי</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-kolhayehudi" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="feed-toggle">
+            <span class="feed-toggle-label">חמ"ל</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-hamal" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="feed-toggle">
+            <span class="feed-toggle-label">ערוץ 7</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-inn" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="feed-toggle">
+            <span class="feed-toggle-label">0404 - חדשות</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-mivzak0404" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="settings-group">
+          <div class="settings-group-title">מבזקים</div>
+          <div class="settings-option">
+            <label class="settings-label" for="ticker-source">מקור מבזקים:</label>
+            <select class="settings-select" id="ticker-source">
+              <option value="inn">ערוץ 7</option>
+              <option value="0404">0404</option>
+              <option value="all">הכל</option>
+            </select>
+          </div>
+          <div class="settings-option">
+            <label class="settings-label" for="ticker-speed">מהירות תנועה:</label>
+            <input type="range" class="settings-range" id="ticker-speed" min="10" max="80" step="5" value="40">
+            <div class="range-value" id="ticker-speed-value">40 שניות</div>
+          </div>
+        </div>
+        
+        <div class="settings-group">
+          <div class="settings-group-title">תצוגה</div>
+          <div class="settings-option">
+            <label class="settings-label" for="theme-select">ערכת נושא:</label>
+            <select class="settings-select" id="theme-select">
+              <option value="dark">מצב כהה</option>
+              <option value="light">מצב בהיר</option>
+              <option value="auto">אוטומטי לפי שעה</option>
+            </select>
+          </div>
+          <div class="settings-option">
+            <label class="settings-label" for="refresh-interval">רענון אוטומטי כל:</label>
+            <select class="settings-select" id="refresh-interval">
+              <option value="60000">דקה</option>
+              <option value="120000" selected>2 דקות</option>
+              <option value="300000">5 דקות</option>
+              <option value="600000">10 דקות</option>
+              <option value="0">כבוי</option>
+            </select>
+          </div>
+        </div>
+        
+        <button class="settings-apply" id="apply-settings">החל הגדרות</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="notification" id="notification"></div>
+  
+  <div class="status-bar">
+    © חדשות עכשיו - מרכז עדכונים בזמן אמת
+  </div>
+
+  <script>
+    // הגדרות פידים
+    const feeds = {
+      kolhayehudi: 'https://www.hakolhayehudi.co.il/rss.xml',
+      hamal: 'https://www.hamal.co.il/feed/',
+      inn: 'https://www.inn.co.il/Rss.aspx',
+      rotter: 'https://rotter.net/rss/rotternews.xml',
+      mivzak0404: 'https://www.0404.co.il/?call_custom_simple_rss=1&csrp_cat=14',
+      news0404: 'https://www.0404.co.il/?call_custom_simple_rss=1&csrp_cat=1'
+    };
+
+    // הגדרות ברירת מחדל
+    const defaultSettings = {
+      tickerSource: 'inn',
+      tickerSpeed: 40,
+      theme: 'dark',
+      refreshInterval: 120000,
+      visibleFeeds: ['kolhayehudi', 'hamal', 'inn', 'mivzak0404']
+    };
+    
+    // משתנים גלובליים
+    let settings = {...defaultSettings};
+    const corsProxy = 'https://api.allorigins.win/raw?url=';
+    let lastUpdateTime = new Date();
+    let updateInterval;
+    
+    // פונקציית התראות
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type} show`;
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+    
+    // גישה בטוחה ל-localStorage
+    const safeStorage = {
+      getItem: function(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (e) {
+          console.error('localStorage error:', e);
+          return null;
+        }
+      },
+      setItem: function(key, value) {
+        try {
+          localStorage.setItem(key, value);
+          return true;
+        } catch (e) {
+          console.error('localStorage error:', e);
+          return false;
+        }
+      }
+    };
+    
+    // טעינת הגדרות מהאחסון המקומי
+    function loadSettings() {
+      try {
+        const savedSettings = safeStorage.getItem('newsSettings');
+        if (savedSettings) {
+          settings = {...defaultSettings, ...JSON.parse(savedSettings)};
+        }
+        
+        // עדכון ממשק המשתמש עם ההגדרות שנטענו
+        document.getElementById('ticker-source').value = settings.tickerSource;
+        document.getElementById('ticker-speed').value = settings.tickerSpeed;
+        document.getElementById('ticker-speed-value').textContent = settings.tickerSpeed + ' שניות';
+        document.getElementById('theme-select').value = settings.theme;
+        document.getElementById('refresh-interval').value = settings.refreshInterval.toString();
+        
+        // עדכון מתגי הפידים
+        for (const feedId of Object.keys(feeds)) {
+          if (feedId !== 'rotter' && feedId !== 'news0404') {
+            const toggleEl = document.getElementById(`toggle-${feedId}`);
+            if (toggleEl) {
+              toggleEl.checked = settings.visibleFeeds.includes(feedId);
+            }
+          }
+        }
+        
+        // החלת הגדרות התצוגה
+        applyTheme();
+        updateTickerSpeed();
+        updateVisibleFeeds();
+        setupAutoRefresh();
+      } catch (e) {
+        console.error('Error loading settings:', e);
+      }
+    }
+    
+    // שמירת הגדרות באחסון המקומי
+    function saveSettings() {
+      safeStorage.setItem('newsSettings', JSON.stringify(settings));
+      showNotification('ההגדרות נשמרו בהצלחה');
+    }
+    
+    // עדכון מהירות הטיקר
+    function updateTickerSpeed() {
+      document.documentElement.style.setProperty('--ticker-speed', `${settings.tickerSpeed}s`);
+    }
+    
+    // עדכון ערכת הנושא
+    function applyTheme() {
+      let theme = settings.theme;
+      
+      if (theme === 'auto') {
+        const currentHour = new Date().getHours();
+        theme = (currentHour >= 6 && currentHour < 19) ? 'light' : 'dark';
+      }
+      
+      if (theme === 'light') {
+        document.body.classList.add('light-mode');
+        document.getElementById('theme-toggle').textContent = '🌙';
+      } else {
+        document.body.classList.remove('light-mode');
+        document.getElementById('theme-toggle').textContent = '☀️';
+      }
+    }
+    
+    // עדכון הפידים הנראים
+    function updateVisibleFeeds() {
+      const feedContainer = document.getElementById('feed-container');
+      const feeds = feedContainer.querySelectorAll('.feed');
+      
+      feeds.forEach(feed => {
+        const feedId = feed.querySelector('.refresh-btn').dataset.feed;
+        if (settings.visibleFeeds.includes(feedId)) {
+          feed.style.display = '';
+        } else {
+          feed.style.display = 'none';
+        }
+      });
+    }
+    
+    // הגדרת רענון אוטומטי
+    function setupAutoRefresh() {
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+      
+      if (settings.refreshInterval > 0) {
+        updateInterval = setInterval(() => {
+          updateAllFeeds();
+        }, settings.refreshInterval);
+      }
+    }
+    
+    // פונקציית עזר להמרת תאריכים
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        return 'כעת';
+      }
+      
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000 / 60); // הפרש בדקות
+      
+      if (diff < 1) {
+        return 'כעת';
+      } else if (diff < 60) {
+        return `לפני ${diff} דקות`;
+      } else if (diff < 24 * 60) {
+        const hours = Math.floor(diff / 60);
+        return `לפני ${hours} שעות`;
+      } else {
+        const days = Math.floor(diff / (60 * 24));
+        return `לפני ${days} ימים`;
+      }
+    }
+    
+    // טעינת פיד חדשות
+    async function loadFeed(feedId) {
+      const feedUrl = feeds[feedId];
+      const feedList = document.getElementById(`${feedId}-list`);
+      
+      if (!feedList) return;
+      
+      feedList.innerHTML = '<div class="loading"></div>';
+      
+      try {
+        const response = await fetch(corsProxy + encodeURIComponent(feedUrl));
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const xml = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xml, 'text/xml');
+        
+        const items = xmlDoc.querySelectorAll('item');
+        
+        if (items.length === 0) {
+          feedList.innerHTML = '<li>לא נמצאו פריטים</li>';
+          return;
+        }
+        
+        let feedHtml = '';
+        
+        // עיבוד 10 הפריטים הראשונים לכל היותר
+        const maxItems = Math.min(items.length, 10);
+        for (let i = 0; i < maxItems; i++) {
+          const item = items[i];
+          const title = item.querySelector('title')?.textContent || 'ללא כותרת';
+          const link = item.querySelector('link')?.textContent || '#';
+          const pubDate = item.querySelector('pubDate')?.textContent || '';
+          
+          feedHtml += `
+            <li class="feed-item">
+              <a href="${link}" target="_blank">
+                <span class="feed-item-time">${formatDate(pubDate)}</span>
+                <span class="feed-item-title">${title}</span>
+              </a>
+            </li>
+          `;
+        }
+        
+        feedList.innerHTML = feedHtml;
+        
+      } catch (error) {
+        console.error(`Error loading ${feedId} feed:`, error);
+        feedList.innerHTML = '<li>שגיאה בטעינת הפיד</li>';
+      }
+    }
+    
+    // עדכון מבזקים
+    async function updateTicker() {
+      const tickerContent = document.getElementById('ticker-content');
+      const source = settings.tickerSource;
+      
+      try {
+        let tickerItems = [];
+        
+        if (source === 'all') {
+          // טעינת מבזקים מכל המקורות
+          const innResponse = await fetch(corsProxy + encodeURIComponent(feeds.inn));
+          const innXml = await innResponse.text();
+          const innDoc = new DOMParser().parseFromString(innXml, 'text/xml');
+          
+          const mivzakResponse = await fetch(corsProxy + encodeURIComponent(feeds.mivzak0404));
+          const mivzakXml = await mivzakResponse.text();
+          const mivzakDoc = new DOMParser().parseFromString(mivzakXml, 'text/xml');
+          
+          const innItems = Array.from(innDoc.querySelectorAll('item')).slice(0, 5);
+          const mivzakItems = Array.from(mivzakDoc.querySelectorAll('item')).slice(0, 5);
+          
+          // שילוב הפריטים מכל המקורות
+          const allItems = [...innItems, ...mivzakItems];
+          allItems.sort((a, b) => {
+            const dateA = new Date(a.querySelector('pubDate')?.textContent || '');
+            const dateB = new Date(b.querySelector('pubDate')?.textContent || '');
+            return dateB - dateA;
+          });
+          
+          tickerItems = allItems.slice(0, 8).map(item => {
+            return item.querySelector('title')?.textContent || '';
+          });
+          
+        } else {
+          // טעינת מבזקים ממקור ספציפי
+          const feedUrl = source === 'inn' ? feeds.inn : feeds.mivzak0404;
+          const response = await fetch(corsProxy + encodeURIComponent(feedUrl));
+          const xml = await response.text();
+          const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
+          
+          const items = xmlDoc.querySelectorAll('item');
+          tickerItems = Array.from(items).slice(0, 8).map(item => {
+            return item.querySelector('title')?.textContent || '';
+          });
+        }
+        
+        if (tickerItems.length === 0) {
+          tickerContent.innerHTML = '<span class="ticker-item">אין מבזקים חדשים</span>';
+          return;
+        }
+        
+        let tickerHtml = '';
+        for (const title of tickerItems) {
+          tickerHtml += `<span class="ticker-item">${title}</span>`;
+        }
+        
+        tickerContent.innerHTML = tickerHtml;
+        
+      } catch (error) {
+        console.error('Error updating ticker:', error);
+        tickerContent.innerHTML = '<span class="ticker-item">שגיאה בטעינת מבזקים</span>';
+      }
+    }
+    
+    // עדכון כל הפידים
+    async function updateAllFeeds() {
+      // עדכון זמן עדכון אחרון
+      lastUpdateTime = new Date();
+      document.getElementById('last-update-time').textContent = 
+        `עודכן לאחרונה: ${lastUpdateTime.getHours()}:${lastUpdateTime.getMinutes().toString().padStart(2, '0')}`;
+      
+      // עדכון כל הפידים הנראים
+      for (const feedId of settings.visibleFeeds) {
+        loadFeed(feedId);
+      }
+      
+      // עדכון מבזקים
+      updateTicker();
+      
+      // עדכון רוטר אם הפאנל פתוח
+      if (document.getElementById('rotter-panel').classList.contains('expanded')) {
+        loadRotterFeed();
+      }
+    }
+    
+    // טעינת פיד רוטר
+    async function loadRotterFeed() {
+      const rotterItems = document.getElementById('rotter-items');
+      rotterItems.innerHTML = '<div class="loading"></div>';
+      
+      try {
+        const response = await fetch(corsProxy + encodeURIComponent(feeds.rotter));
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const xml = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xml, 'text/xml');
+        
+        const items = xmlDoc.querySelectorAll('item');
+        
+        if (items.length === 0) {
+          rotterItems.innerHTML = '<div class="panel-item">לא נמצאו פריטים</div>';
+          return;
+        }
+        
+        let rotterHtml = '';
+        
+        // עיבוד 15 הפריטים הראשונים לכל היותר
+        const maxItems = Math.min(items.length, 15);
+        for (let i = 0; i < maxItems; i++) {
+          const item = items[i];
+          const title = item.querySelector('title')?.textContent || 'ללא כותרת';
+          const link = item.querySelector('link')?.textContent || '#';
+          const pubDate = item.querySelector('pubDate')?.textContent || '';
+          
+          rotterHtml += `
+            <div class="panel-item">
+              <a href="${link}" target="_blank">
+                <span class="panel-item-time">${formatDate(pubDate)}</span>
+                ${title}
+              </a>
+            </div>
+          `;
+        }
+        
+        rotterItems.innerHTML = rotterHtml;
+        
+      } catch (error) {
+        console.error('Error loading Rotter feed:', error);
+        rotterItems.innerHTML = '<div class="panel-item">שגיאה בטעינת הפיד</div>';
+      }
+    }
+    
+    // אירועי טעינת הדף
+    document.addEventListener('DOMContentLoaded', () => {
+      // טעינת הגדרות
+      loadSettings();
+      
+      // רענון ראשוני של הפידים
+      updateAllFeeds();
+      
+      // אירועי רענון פידים ספציפיים
+      document.querySelectorAll('.refresh-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const feedId = e.currentTarget.dataset.feed;
+          const icon = e.currentTarget.querySelector('.refresh-icon');
+          
+          // אנימציית סיבוב
+          icon.classList.add('spin');
+          setTimeout(() => {
+            icon.classList.remove('spin');
+          }, 1000);
+          
+          loadFeed(feedId);
+        });
+      });
+      
+      // כפתור רענון כללי
+      document.getElementById('reload-all').addEventListener('click', () => {
+        updateAllFeeds();
+        showNotification('כל הפידים מתעדכנים');
+      });
+      
+      // החלפת ערכת נושא
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        if (document.body.classList.contains('light-mode')) {
+          settings.theme = 'dark';
+        } else {
+          settings.theme = 'light';
+        }
+        applyTheme();
+        saveSettings();
+      });
+      
+      // פאנל רוטר
+      document.getElementById('rotter-panel').addEventListener('click', function() {
+        this.classList.toggle('expanded');
+        if (this.classList.contains('expanded')) {
+          loadRotterFeed();
+        }
+      });
+      
+      document.getElementById('close-rotter-panel').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('rotter-panel').classList.remove('expanded');
+      });
+      
+      // פאנל הגדרות
+      document.getElementById('settings-panel').addEventListener('click', function() {
+        this.classList.toggle('expanded');
+      });
+      
+      document.getElementById('close-settings-panel').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('settings-panel').classList.remove('expanded');
+      });
+      
+      // שינוי מהירות הטיקר
+      document.getElementById('ticker-speed').addEventListener('input', (e) => {
+        const value = e.target.value;
+        document.getElementById('ticker-speed-value').textContent = value + ' שניות';
+      });
+      
+      // החלת הגדרות
+      document.getElementById('apply-settings').addEventListener('click', () => {
+        // קליטת הגדרות חדשות
+        settings.tickerSource = document.getElementById('ticker-source').value;
+        settings.tickerSpeed = parseInt(document.getElementById('ticker-speed').value);
+        settings.theme = document.getElementById('theme-select').value;
+        settings.refreshInterval = parseInt(document.getElementById('refresh-interval').value);
+        
+        // עדכון פידים נראים
+        settings.visibleFeeds = [];
+        document.querySelectorAll('[id^="toggle-"]').forEach(toggle => {
+          if (toggle.checked) {
+            const feedId = toggle.id.replace('toggle-', '');
+            settings.visibleFeeds.push(feedId);
+          }
+        });
+        
+        // החלת ההגדרות
+        applyTheme();
+        updateTickerSpeed();
+        updateVisibleFeeds();
+        setupAutoRefresh();
+        saveSettings();
+        
+        // עדכון המבזקים אם השתנה המקור
+        updateTicker();
+        
+        // סגירת פאנל ההגדרות
+        document.getElementById('settings-panel').classList.remove('expanded');
+      });
+      
+      // התאמה לזמן יום/לילה בהתאם לשעה אם במצב אוטומטי
+      if (settings.theme === 'auto') {
+        applyTheme();
+        // בדיקה מחדש כל שעה
+        setInterval(applyTheme, 60 * 60 * 1000);
+      }
+    });
+	</script>
+</body>
+</html>
